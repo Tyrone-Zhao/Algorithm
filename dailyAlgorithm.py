@@ -1585,7 +1585,79 @@ def uniquePaths(m, n):
     return res[n - 1][m - 1]
 
 
+def minPathSum(grid):
+    """
+        最小路径和
+
+        输入:
+        [
+          [1,3,1],
+          [1,5,1],
+          [4,2,1]
+        ]
+        输出: 7
+        解释: 因为路径 1→3→1→1→1 的总和最小。
+    """
+    if not grid:
+        return 0
+    r, c = len(grid[0]), len(grid)
+
+    for i in range(1, r):
+        grid[0][i] += grid[0][i - 1]
+    for j in range(1, c):
+        grid[j][0] += grid[j - 1][0]
+
+    for i in range(1, r):
+        for j in range(1, c):
+            grid[j][i] += min(grid[j][i - 1], grid[j - 1][i])
+
+    return grid[c - 1][r - 1]
+
+
+def isValidBST(root):
+    """
+        验证二叉搜索树
+
+        采用DFS中根遍历排序比较
+    """
+    stack, inorder = [], float('-inf')
+
+    while stack or root:
+        while root:
+            stack.append(root)
+            root = root.left
+        root = stack.pop()
+        if root.val <= inorder:
+            return False
+        inorder = root.val
+        root = root.right
+
+    return True
+
+
+def simplifyPath(path):
+    """
+        简化路径
+
+        输入："/a//b////c/d//././/.."
+        输出："/a/b/c"
+    """
+    s = path.split('/')
+    res = []
+
+    for x in s:
+        if x:
+            if x == '..':
+                if res:
+                    res.pop()
+            elif x != '.':
+                res.append(x)
+
+    return '/' + '/'.join(res)
+
+
 import time
+
 
 start_time = time.time()
 print(addTwoNumbers("MCMXCIV"))
