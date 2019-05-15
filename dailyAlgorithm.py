@@ -1109,7 +1109,7 @@ class Solution:
         if not nums:
             res.append(path)
         for i in range(len(nums)):
-            self.dfs(nums[:i]+nums[i+1:], path+[nums[i]], res)
+            self.dfs(nums[:i] + nums[i + 1:], path + [nums[i]], res)
 
 
 class Solution:
@@ -1126,7 +1126,7 @@ class Solution:
             if nums[i] in nums[:i]:
                 continue
             else:
-                self.dfs(nums[:i]+nums[i+1:], path+[nums[i]], res)
+                self.dfs(nums[:i] + nums[i + 1:], path + [nums[i]], res)
 
 
 def groupAnagrams(strs):
@@ -1240,6 +1240,7 @@ class Solution:
 class Solution:
     def removeNthFromEnd(self, head: ListNode, n: int) -> ListNode:
         """ 删除链表的倒数第N个节点 """
+
         def index(node):
             if not node:
                 return 0
@@ -1247,6 +1248,7 @@ class Solution:
             if i > n:
                 node.next.val = node.val
             return i
+
         index(head)
         return head.next
 
@@ -1656,8 +1658,164 @@ def simplifyPath(path):
     return '/' + '/'.join(res)
 
 
-import time
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        """
+            通配符匹配
 
+            给定一个字符串 (s) 和一个字符模式 (p) ，实现一个支持 '?' 和 '*' 的通配符匹配。
+            s 可能为空，且只包含从 a-z 的小写字母。
+            p 可能为空，且只包含从 a-z 的小写字母，以及字符 ? 和 *。
+            输入:
+            s = "aa"
+            p = "a"
+            输出: false
+            解释: "a" 无法匹配 "aa" 整个字符串。
+        """
+        sn, pn = len(s), len(p)
+        si = pi = 0
+        save_si, save_pi = None, None
+        while si < sn:
+            if pi < pn and (p[pi] == '?' or p[pi] == s[si]):
+                si += 1
+                pi += 1
+            elif pi < pn and p[pi] == '*':
+                save_si, save_pi = si + 1, pi
+                pi += 1
+            elif save_pi is not None:
+                si, pi = save_si, save_pi
+            else:
+                return False
+        return p[pi:].count("*") == pn - pi
+
+
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        """
+            通配符匹配(非最优解）
+
+            给定一个字符串 (s) 和一个字符模式 (p) ，实现一个支持 '?' 和 '*' 的通配符匹配。
+            s 可能为空，且只包含从 a-z 的小写字母。
+            p 可能为空，且只包含从 a-z 的小写字母，以及字符 ? 和 *。
+            输入:
+            s = "aa"
+            p = "a"
+            输出: false
+            解释: "a" 无法匹配 "aa" 整个字符串。
+
+            动态规划
+
+            dp[i][j]表示s到i位置,p到j位置是否匹配!
+
+            初始化:
+
+            dp[0][0]:什么都没有,所以为true
+            第一行dp[0][j],换句话说,s为空,与p匹配,所以只要p开始为*才为true
+            第一列dp[i][0],当然全部为False
+            动态方程:
+
+            如果(s[i] == p[j] || p[j] == "?") && dp[i-1][j-1] ,有dp[i][j] = true
+
+            如果p[j] == "*" && (dp[i-1][j] = true || dp[i][j-1] = true)有dp[i][j] = true
+
+            ​	note:
+
+            ​	dp[i-1][j],表示*代表是空字符,例如ab,ab*
+
+            ​	dp[i][j-1],表示*代表非空任何字符,例如abcd,ab*
+
+            dp[i][j] incidates whether s[:i] matches p[:j].
+            When we iterate p,
+
+            If p[j] is not a *, we check whether s[:i] matches p[:j] and s[i] is c or ?. So dp[i+1][j+1] = dp[i][j] and (p[j] in {s[i], '?'})
+
+            If p[j] is a *, we check whether s[:i] matches p[:j] and s[i+k:] matches p[j+1:] and k can be any value since a * can matches any length of string. Thus in this case, once we found a dp[i][j] is True(s[:i] matches p[:j]), we update entire dp[i:][j] to True enable any s[i+k] that matches p[j+1] to set dp[i+k][j+1] to True for next iteration.
+            And we can generalize it as for i in range(len(s)): dp[i+1] |= dp[i].
+            And if p[0] is *, we set dp[0] to True.
+
+            And we can use dp rolling to reduce dp[i][j] to dp[i].
+
+        """
+        ls = len(s)
+        if len(p) - p.count('*') > ls:
+            return False
+        dp = [True] + [False] * ls
+        for c in p:
+            if c == '*':
+                for i in range(ls):
+                    dp[i + 1] |= dp[i]
+            else:
+                for i in range(ls)[::-1]:
+                    dp[i + 1] = dp[i] and (c in {s[i], '?'})
+            dp[0] &= (c == '*')
+        return dp[-1]
+
+
+class Solution:
+    @pysnooper.snoop()
+    def maxSubArray(self, nums: list) -> int:
+        """
+            最大子序和
+
+            给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+            输入: [-2,1,-3,4,-1,2,1,-5,4],
+            输出: 6
+            解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+
+            r[0]代表代表全局最优解
+            r[1]以当前位置为结尾的局部最优解
+
+            for i in range(1, len(nums)):
+                nums[i] = max(nums[i], nums[i] + nums[i-1])
+            return max(nums)
+        """
+        from functools import reduce
+        return reduce(lambda r, x: (max(r[0], r[1] + x), max(r[1] + x, x)), nums, (max(nums), 0))[0]
+
+
+class Solution:
+    def maxSubArrayHelper(self, nums, l, r):
+        if l > r:
+            return -2147483647
+        m = (l + r) // 2
+
+        leftMax = sumNum = 0
+        for i in range(m - 1, l - 1, -1):
+            sumNum += nums[i]
+            leftMax = max(leftMax, sumNum)
+
+        rightMax = sumNum = 0
+        for i in range(m + 1, r + 1):
+            sumNum += nums[i]
+            rightMax = max(rightMax, sumNum)
+
+        leftAns = self.maxSubArrayHelper(nums, l, m - 1)
+        rightAns = self.maxSubArrayHelper(nums, m + 1, r)
+
+        return max(leftMax + nums[m] + rightMax, max(leftAns, rightAns))
+
+    def maxSubArray(self, nums):
+        """
+            最大子序和（分治法）
+
+            给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
+
+            输入: [-2,1,-3,4,-1,2,1,-5,4],
+            输出: 6
+            解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+
+            r[0]代表代表全局最优解
+            r[1]以当前位置为结尾的局部最优解
+
+            for i in range(1, len(nums)):
+                nums[i] = max(nums[i], nums[i] + nums[i-1])
+            return max(nums)
+        """
+        return self.maxSubArrayHelper(nums, 0, len(nums) - 1)
+
+
+import time
 
 start_time = time.time()
 print(addTwoNumbers("MCMXCIV"))
