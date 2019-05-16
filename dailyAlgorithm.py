@@ -1815,6 +1815,106 @@ class Solution:
         return self.maxSubArrayHelper(nums, 0, len(nums) - 1)
 
 
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        """
+            字符串相乘（竖式计算，非最优解）
+
+            给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，
+            它们的乘积也表示为字符串形式。
+
+            输入: num1 = "123", num2 = "456"
+            输出: "56088"
+        """
+        ans = 0
+        num1, num2 = num1[::-1], num2[::-1]
+        s = [0] * (len(num1) + len(num2))
+        for i in range(len(num1)):
+            for j in range(len(num2)):
+                s[i + j] = s[i + j] + int(num1[i]) * int(num2[j])
+        for i in range(len(s)):
+            ans += s[i] * 10 ** i
+        return str(ans)
+
+
+class Solution:
+    def multiply(self, num1: str, num2: str) -> str:
+        """
+            字符串相乘, 算法复杂度n的1.59次方
+
+            给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，
+            它们的乘积也表示为字符串形式。
+
+            输入: num1 = "123", num2 = "456"
+            输出: "56088"
+        """
+        if num1 == "0" or num2 == "0":
+            return "0"
+        n1, n2 = 0, 0
+        t1, t2 = num1, num2 = int(num1), int(num2)
+        while num1 >= 2:
+            num1 >>= 1
+            n1 += 1
+        while num2 >= 2:
+            num2 >>= 1
+            n2 += 1
+        r1, r2 = t1 % 2 ** n1, t2 % 2 ** n2
+        A, B, C, D = 2 ** n1, r1, 2 ** n2, r2
+        return str(A * C + B * C + A * D + B * D)
+
+
+class Solution:
+    def searchMatrix(self, matrix: list, target: int) -> bool:
+        """
+            搜索二维矩阵
+
+            编写一个高效的算法来判断 m x n 矩阵中，是否存在一个目标值。该矩阵具有如下特性：
+
+            每行中的整数从左到右按升序排列。
+            每行的第一个整数大于前一行的最后一个整数。
+
+            输入:
+            matrix = [
+              [1,   3,  5,  7],
+              [10, 11, 16, 20],
+              [23, 30, 34, 50]
+            ]
+            target = 13
+            输出: false
+        """
+        if not matrix or not matrix[0]:
+            return False
+        i, j = 0, len(matrix) - 1
+        k = j
+        while i <= j:
+            in_middle = (j + i) // 2
+            if matrix[in_middle][0] == target:
+                return True
+            elif matrix[in_middle][0] < target:
+                if in_middle == k:
+                    return self.binarySearch(matrix[in_middle], target)
+                if matrix[in_middle + 1][0] > target:
+                    return self.binarySearch(matrix[in_middle], target)
+                i = in_middle + 1
+            else:
+                j = in_middle - 1
+        return False
+
+    def binarySearch(self, nums, target):
+        """ 二分查找 """
+        i, j = 0, len(nums) - 1
+        while i <= j:
+            in_middle = (j + i) // 2
+            if nums[in_middle] == target:
+                return True
+            elif nums[in_middle] < target:
+                i = in_middle + 1
+            else:
+                j = in_middle - 1
+
+        return False
+
+
 import time
 
 start_time = time.time()
