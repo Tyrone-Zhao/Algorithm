@@ -1838,32 +1838,6 @@ class Solution:
 
 
 class Solution:
-    def multiply(self, num1: str, num2: str) -> str:
-        """
-            字符串相乘, 算法复杂度n的1.59次方
-
-            给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，
-            它们的乘积也表示为字符串形式。
-
-            输入: num1 = "123", num2 = "456"
-            输出: "56088"
-        """
-        if num1 == "0" or num2 == "0":
-            return "0"
-        n1, n2 = 0, 0
-        t1, t2 = num1, num2 = int(num1), int(num2)
-        while num1 >= 2:
-            num1 >>= 1
-            n1 += 1
-        while num2 >= 2:
-            num2 >>= 1
-            n2 += 1
-        r1, r2 = t1 % 2 ** n1, t2 % 2 ** n2
-        A, B, C, D = 2 ** n1, r1, 2 ** n2, r2
-        return str(A * C + B * C + A * D + B * D)
-
-
-class Solution:
     def searchMatrix(self, matrix: list, target: int) -> bool:
         """
             搜索二维矩阵
@@ -1916,7 +1890,35 @@ class Solution:
 
 
 class Solution:
-    @pysnooper.snoop()
+    def multiply(self, num1: str, num2: str) -> str:
+        """
+            字符串相乘, 算法复杂度n的1.59次方
+
+            给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，
+            它们的乘积也表示为字符串形式。
+
+            输入: num1 = "123", num2 = "456"
+            输出: "56088"
+        """
+        if num1 == "0" or num2 == "0":
+            return "0"
+        n1, n2 = 0, 0
+        t1, t2 = num1, num2 = int(num1), int(num2)
+        while num1 >= 2:
+            num1 >>= 1
+            n1 += 1
+        while num2 >= 2:
+            num2 >>= 1
+            n2 += 1
+        k1, k2 = 1 << n1, 1 << n2
+        r1, r2 = t1 & (k1 - 1), t2 & (k2 - 1)
+        A, B, C, D = k1, r1, k2, r2
+        return str(A * C + B * C + A * D + B * D)
+
+
+class Solution:
+    from functools import lru_cache
+    @lru_cache(100)
     def multiply(self, num1: str, num2: str) -> str:
         """
             字符串相乘, Karatsuba算法，n的1.58次方, https://zh.wikipedia.org/wiki/Karatsuba%E7%AE%97%E6%B3%95
@@ -1945,6 +1947,189 @@ class Solution:
         z2 = self.karatsuba(high1, high2)
 
         return (z2 * 10 ** (2 * splitPosition)) + ((z1 - z2 - z0) * 10 ** (splitPosition)) + z0
+
+
+class Solution:
+    def toomCook3(self, num1, num2):
+        """ 数字乘法 """
+        import sympy as sy
+
+        num1, num2 = int(num1), int(num2)
+        # 数字分割
+        base = 10000
+        i = max(int(sy.log(num1, base)) // 3, int(sy.log(num2, base)) // 3) + 1
+        B = base ** i
+
+        d, m0 = divmod(num1, B)
+        m2, m1 = divmod(d, B)
+
+        d, n0 = divmod(num2, B)
+        n2, n1 = divmod(d, B)
+
+        # 评估
+        po = m0 + m2
+        p0 = m0
+        p1 = po + m1
+        p_1 = po - m1
+        p_2 = (p_1 + m2) * 2 - m0
+        pmax = m2
+
+        qo = n0 + n2
+        q0 = n0
+        q1 = qo + n1
+        q_1 = qo - n1
+        q_2 = (q_1 + n2) * 2 - n0
+        qmax = n2
+
+        r0 = p0 * q0
+        r1 = p1 * q1
+        r_1 = p_1 * q_1
+        r_2 = p_2 * q_2
+        rmax = pmax * qmax
+
+        # 插值求解
+        a1 = [
+            [1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1],
+            [1, -1, 1, -1, 1],
+            [1, -2, 4, -8, 16],
+            [0, 0, 0, 0, 1]
+        ]
+
+        a1 = sy.Matrix(a1)
+        a1_I = a1.inv()  # 矩阵求逆
+
+        a2 = sy.Matrix([r0, r1, r_1, r_2, rmax])
+        ans = a1_I * a2
+
+        return sum((ans[i, 0] * B ** i for i in range(len(ans))))
+
+
+class Solution:
+    def combine(self, n, k):
+        """
+            组合
+            给定两个整数 n 和 k，返回 1 ... n 中所有可能的 k 个数的组合。
+            输入: n = 4, k = 2
+            输出:
+            [
+              [2,4],
+              [3,4],
+              [2,3],
+              [1,2],
+              [1,3],
+              [1,4],
+            ]
+        """
+        from itertools import combinations
+
+        return list(combinations(range(1, n + 1), k))
+
+
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        """
+            跳跃游戏(非最优解)
+
+            给定一个非负整数数组，你最初位于数组的第一个位置。
+            数组中的每个元素代表你在该位置可以跳跃的最大长度。
+            判断你是否能够到达最后一个位置。
+
+            输入: [2,3,1,1,4]
+            输出: true
+            解释: 从位置 0 到 1 跳 1 步, 然后跳 3 步到达最后一个位置。
+        """
+        n = len(nums)
+        for i in range(n - 2, -1, -1):
+            if nums[i] > 0:
+                continue
+            elif nums[i] == 0:
+                if i > 0:
+                    temp = 0
+                    for j in range(i - 1, -1, -1):
+                        if nums[j] > i - j:
+                            temp = 1
+                            break
+                    if temp:
+                        continue
+                    else:
+                        return False
+                else:
+                    return False
+        return True
+
+
+class Solution:
+    def canJump(self, nums: List[int]) -> bool:
+        """
+            跳跃游戏
+
+            给定一个非负整数数组，你最初位于数组的第一个位置。
+            数组中的每个元素代表你在该位置可以跳跃的最大长度。
+            判断你是否能够到达最后一个位置。
+
+            输入: [2,3,1,1,4]
+            输出: true
+            解释: 从位置 0 到 1 跳 1 步, 然后跳 3 步到达最后一个位置。
+        """
+        n = len(nums)
+        start = n - 2
+        end = n - 1
+        while start >= 0:
+            if start + nums[start] >= end: end = start
+            start -= 1
+        return end <= 0
+
+
+class Solution:
+    def jump(self, nums) -> bool:
+        """
+            跳跃游戏
+
+            给定一个非负整数数组，你最初位于数组的第一个位置。
+            数组中的每个元素代表你在该位置可以跳跃的最大长度。
+            你的目标是使用最少的跳跃次数到达数组的最后一个位置。
+
+            输入: [2,3,1,1,4]
+            输出: 2
+            解释: 跳到最后一个位置的最小跳跃数是 2。
+            从下标为 0 跳到下标为 1 的位置，跳 1 步，然后跳 3 步到达数组的最后一个位置。
+        """
+        mx, sta, end, i, cnt = 0, 0, 0, 0, 0
+        while i < len(nums) - 1:
+            reach = i + nums[i]
+            if reach >= mx:
+                mx, sta = reach, i
+            if i == end:
+                i, end, cnt = sta, mx, cnt + 1
+            i += 1
+        return cnt
+
+
+class Solution:
+    @pysnooper.snoop()
+    def plusOne(self, digits):
+        """
+            加一
+
+            给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一。
+            最高位数字存放在数组的首位， 数组中每个元素只存储一个数字。
+            你可以假设除了整数 0 之外，这个整数不会以零开头。
+
+
+        """
+        if digits == [9] * len(digits):
+            return [1] + [0] * len(digits)
+        if digits[-1] == 9:
+            for i in reversed(range(len(digits))):
+                if digits[i] != 9:
+                    break
+                else:
+                    digits[i] = 0
+            digits[i] += 1
+        else:
+            digits[-1] += 1
+        return digits
 
 
 
