@@ -2107,7 +2107,6 @@ class Solution:
 
 
 class Solution:
-    @pysnooper.snoop()
     def plusOne(self, digits):
         """
             加一
@@ -2132,7 +2131,300 @@ class Solution:
         return digits
 
 
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集
 
+            给定一组不含重复元素的整数数组nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: nums = [1,2,3]
+            输出:
+            [
+              [3],
+              [1],
+              [2],
+              [1,2,3],
+              [1,3],
+              [2,3],
+              [1,2],
+              []
+            ]
+        """
+        res = [[]]
+        for n in nums:
+            for r in res[:]:
+                res.append(r[:])
+                r.append(n)
+
+        return res
+
+
+class Solution:
+    def subsets(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集
+
+            给定一组不含重复元素的整数数组nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: nums = [1,2,3]
+            输出:
+            [
+              [3],
+              [1],
+              [2],
+              [1,2,3],
+              [1,3],
+              [2,3],
+              [1,2],
+              []
+            ]
+        """
+        from itertools import combinations
+        return sum([list(combinations(nums, i)) for i in range(len(nums) + 1)], [])
+
+
+class Solution:
+    visit = [[]]
+    direction = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        """
+            单词搜索(非最优解)
+
+            给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+            单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+            board =
+            [
+              ['A','B','C','E'],
+              ['S','F','C','S'],
+              ['A','D','E','E']
+            ]
+
+            给定 word = "ABCCED", 返回 true.
+            给定 word = "SEE", 返回 true.
+            给定 word = "ABCB", 返回 false.
+        """
+        row, col = len(board), len(board[0])
+        if not row:
+            return False
+        if not word:
+            return True
+        if row * col < len(word):
+            return False
+
+        self.visit = [[False for i in range(col)] for j in range(row)]
+        for i in range(row):
+            for j in range(col):
+                if word[0] == board[i][j]:
+                    if self.dfs(i, j, board, word, 1):
+                        return True
+        return False
+
+    def dfs(self, i, j, board, word, key):
+        if key == len(word):
+            return True
+        self.visit[i][j] = True
+        row, col = len(board), len(board[0])
+        for direct in self.direction:
+            x, y = i + direct[0], j + direct[1]
+            if x < 0 or y < 0 or x >= row or y >= col or self.visit[x][y]:
+                continue
+            if board[x][y] == word[key] and self.dfs(x, y, board, word, key + 1):
+                return True
+            else:  # 这个路径不通
+                continue
+
+        self.visit[i][j] = False
+        return False
+
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        """
+            单词搜索(非最优解)
+
+            给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+            单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+            board =
+            [
+              ['A','B','C','E'],
+              ['S','F','C','S'],
+              ['A','D','E','E']
+            ]
+
+            给定 word = "ABCCED", 返回 true.
+            给定 word = "SEE", 返回 true.
+            给定 word = "ABCB", 返回 false.
+        """
+        m, n, l = len(board), len(board[0]), len(word)
+        # b is complex number board
+        b = {i + 1j * j: board[i][j] for i in range(m) for j in range(n)}
+
+        # backtrack
+        def findWord(z, w):
+            if not w:
+                self.ans += 1; return
+            else:
+                for k in range(4):
+                    c = z + 1j ** (k + 1)
+                    if not self.ans and c in b and b[c] == w[0]:
+                        b[c] = ''
+                        findWord(c, w[1:])
+                        b[c] = w[0]
+
+        self.ans = 0
+        for z in b.keys():
+            if b[z] == word[0]:
+                b[z] = ''
+                findWord(z, word[1:])
+                if self.ans > 0: return True
+                b[z] = word[0]
+
+        return False
+
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -> bool:
+        """
+            单词搜索
+
+            给定一个二维网格和一个单词，找出该单词是否存在于网格中。
+
+            单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
+
+            board =
+            [
+              ['A','B','C','E'],
+              ['S','F','C','S'],
+              ['A','D','E','E']
+            ]
+
+            给定 word = "ABCCED", 返回 true.
+            给定 word = "SEE", 返回 true.
+            给定 word = "ABCB", 返回 false.
+        """
+        def preCheck():
+            preDict = {}
+
+            for i in word:
+                if i in preDict:
+                    preDict[i] += 1
+                else:
+                    preDict[i] = 1
+
+            for i in board:
+                for j in i:
+                    if j in preDict and preDict[j] > 0: preDict[j] -= 1
+            for i in preDict.values():
+                if i > 0: return False
+            return True
+
+        def helper(wordIdx, x, y):
+            if board[x][y] != word[wordIdx]:
+                return False
+            elif wordIdx == l - 1:
+                return True
+            else:
+                wordIdx += 1
+                tempChar = board[x][y]
+                board[x][y] = None
+                for d in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
+                    xNext = x + d[0]
+                    yNext = y + d[1]
+                    if -1 < xNext < m and -1 < yNext < n and board[xNext][yNext]:
+                        if helper(wordIdx, xNext, yNext): return True
+                board[x][y] = tempChar
+                return False
+
+        if not board: return False
+        if not word: return True
+
+        if not preCheck(): return False
+
+        m = len(board)
+        n = len(board[0])
+        l = len(word)
+        for i in range(m):
+            for j in range(n):
+                if helper(0, i, j): return True
+
+        return False
+
+
+class Solution:
+    def removeDuplicates(self, nums: List[int]) -> int:
+        """
+            删除排序数组中的重复项 II(非最优解)
+
+            给定一个排序数组，你需要在原地删除重复出现的元素，使得每个元素最多出现两次，返回移除后数组的新长度。
+            不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
+
+            给定 nums = [0,0,1,1,1,1,2,3,3],
+            函数应返回新长度 length = 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。
+            你不需要考虑数组中超出新长度后面的元素。
+        """
+        if len(nums) <= 2:
+            return len(nums)
+        i, j = 0, 1
+        while j < len(nums):
+            if nums[j] == nums[i]:
+                k = j + 1
+                while k < len(nums) and nums[k] == nums[j]:
+                    nums.pop(k)
+                i, j = k, k + 1
+            else:
+                i, j = j, j + 1
+
+        return len(nums)
+
+
+class Solution:
+    def removeDuplicates(self, nums: List[int]) -> int:
+        """
+            删除排序数组中的重复项 II
+
+            给定一个排序数组，你需要在原地删除重复出现的元素，使得每个元素最多出现两次，返回移除后数组的新长度。
+            不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
+
+            给定 nums = [0,0,1,1,1,1,2,3,3],
+            函数应返回新长度 length = 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。
+            你不需要考虑数组中超出新长度后面的元素。
+        """
+        i = 0
+        for n in nums:
+            if i < 2 or n > nums[i - 2]:
+                nums[i] = n
+                i += 1
+        return i
+
+
+class Solution:
+    def removeDuplicates(self, nums: List[int]) -> int:
+        """
+            删除排序数组中的重复项 II(非最优解)
+
+            给定一个排序数组，你需要在原地删除重复出现的元素，使得每个元素最多出现两次，返回移除后数组的新长度。
+            不要使用额外的数组空间，你必须在原地修改输入数组并在使用 O(1) 额外空间的条件下完成。
+
+            给定 nums = [0,0,1,1,1,1,2,3,3],
+            函数应返回新长度 length = 7, 并且原数组的前五个元素被修改为 0, 0, 1, 1, 2, 3, 3 。
+            你不需要考虑数组中超出新长度后面的元素。
+        """
+        if not nums:
+            return 0
+        uniq = list(set(nums))
+        for i in uniq:
+            if nums.count(i) > 2:
+                while nums.count(i) != 2:
+                    nums.remove(i)
+        return len(nums)
 
 
 import time
