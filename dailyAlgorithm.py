@@ -1,3 +1,8 @@
+import re
+import collections
+from typing import List
+
+
 def twoSum(nums, target):
     """ 两数之和 """
     dict1 = {}
@@ -1161,7 +1166,7 @@ def myPow(x, n):
         Pow(x, n)
     """
     if n in (1, 0, -1): return x ** (n)
-    return self.myPow(x, n // 2) ** 2 * (x if n % 2 != 0 else 1)
+    return myPow(x, n // 2) ** 2 * (x if n % 2 != 0 else 1)
 
 
 def firstMissingPositive(nums):
@@ -1752,7 +1757,6 @@ class Solution:
 
 
 class Solution:
-    @pysnooper.snoop()
     def maxSubArray(self, nums: list) -> int:
         """
             最大子序和
@@ -2270,7 +2274,8 @@ class Solution:
         # backtrack
         def findWord(z, w):
             if not w:
-                self.ans += 1; return
+                self.ans += 1;
+                return
             else:
                 for k in range(4):
                     c = z + 1j ** (k + 1)
@@ -2310,6 +2315,7 @@ class Solution:
             给定 word = "SEE", 返回 true.
             给定 word = "ABCB", 返回 false.
         """
+
         def preCheck():
             preDict = {}
 
@@ -2425,6 +2431,428 @@ class Solution:
                 while nums.count(i) != 2:
                     nums.remove(i)
         return len(nums)
+
+
+class Solution:
+    RUN = True
+
+    def search(self, nums: List[int], target: int) -> bool:
+        """
+            搜索旋转排序数组II
+
+            假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+            ( 例如，数组 [0,0,1,2,2,5,6] 可能变为 [2,5,6,0,0,1,2] )。
+            编写一个函数来判断给定的目标值是否存在于数组中。若存在返回 true，否则返回 false。
+        """
+        i, j = 0, len(nums) - 1
+        if nums and self.RUN:
+            in_middle = (j + i) // 2
+            list1 = nums[:in_middle + 1]
+            list2 = nums[in_middle + 1:]
+            if nums[in_middle] > nums[i]:
+                res = self.binarySearch(list1, target)
+                if res == -1:
+                    return self.search(list2, target)
+                else:
+                    return True
+            elif nums[in_middle] == nums[i]:
+                if nums[i] == target:
+                    return True
+                elif list1.count(nums[i]) == len(list1):
+                    return self.search(list2, target)
+                else:
+                    return self.search(list1, target)
+            else:
+                res = self.binarySearch(list2, target)
+                if res == -1:
+                    return self.search(list1, target)
+                else:
+                    return True
+
+        if not self.RUN:
+            return True
+        return False
+
+    def binarySearch(self, nums, target):
+        """ 二分查找 """
+        i, j = 0, len(nums) - 1
+        while i <= j:
+            in_middle = (j + i) // 2
+            if nums[in_middle] == target:
+                self.RUN = False
+                return in_middle
+            elif nums[in_middle] < target:
+                i = in_middle + 1
+            else:
+                j = in_middle - 1
+
+        return -1
+
+
+class Solution:
+    def search(self, nums: List[int], target: int) -> bool:
+        """
+            搜索旋转排序数组II(非最优解)
+
+            假设按照升序排序的数组在预先未知的某个点上进行了旋转。
+            ( 例如，数组 [0,0,1,2,2,5,6] 可能变为 [2,5,6,0,0,1,2] )。
+            编写一个函数来判断给定的目标值是否存在于数组中。若存在返回 true，否则返回 false。
+        """
+        if not nums:
+            return False
+        low = 0
+        high = len(nums) - 1
+        while low <= high:
+            while low < high and nums[low] == nums[high]:  # 这样的目的是为了能准确判断mid位置，所以算法的最坏时间复杂度为O(n)
+                low += 1
+            mid = (low + high) // 2
+            if target == nums[mid]:
+                return True
+            elif nums[mid] >= nums[low]:  # 高区
+                if nums[low] <= target < nums[mid]:
+                    high = mid - 1
+                else:
+                    low = mid + 1
+            elif nums[mid] <= nums[high]:  # 低区
+                if nums[mid] < target <= nums[high]:
+                    low = mid + 1
+                else:
+                    high = mid - 1
+        return False
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后(非最优解)
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+        res = []
+        if n <= 0:
+            return res
+        ans = [["." for i in range(n)] for j in range(n)]
+        flag = [[0 for i in range(n)] for j in range(n)]
+        self.dfs(0, ans, flag, res)
+        return res
+
+    def dfs(self, j, ans, flag, res):
+        if j == len(ans):
+            res.append(["".join(a) for a in ans])
+            return
+        for i in range(len(ans[0])):
+            if not self.checkIJ(flag, i, j):
+                continue
+
+            ans[j][i] = "Q"
+            from copy import deepcopy
+            temp = deepcopy(flag)
+            self.setFlag(flag, i, j, len(ans))
+
+            self.dfs(j + 1, ans, flag, res)
+
+            ans[j][i] = "."
+            flag = deepcopy(temp)
+
+    def checkIJ(self, flag, i, j):
+        if flag[j][i] == 1:
+            return False
+        return True
+
+    def setFlag(self, flag, i, j, n):
+        for l in range(n):
+            flag[l][i] = 1
+        for k in range(n):
+            flag[j][k] = 1
+        k, l = i, j
+        while i >= 0 and j >= 0:
+            flag[j][i] = 1
+            i -= 1
+            j -= 1
+        i, j = k, l
+        while i < n and j < n:
+            flag[j][i] = 1
+            i += 1
+            j += 1
+        i, j = k, l
+        while i < n and j >= 0:
+            flag[j][i] = 1
+            i += 1
+            j -= 1
+        i, j = k, l
+        while i >= 0 and j < n:
+            flag[j][i] = 1
+            i -= 1
+            j += 1
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后(非最优解)
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+
+        def could_place(row, col):
+            return not (cols[col] + hill_diagonals[row - col] + dale_diagonals[row + col])
+
+        def place_queen(row, col):
+            queens.add((row, col))
+            cols[col] = 1
+            hill_diagonals[row - col] = 1
+            dale_diagonals[row + col] = 1
+
+        def remove_queen(row, col):
+            queens.remove((row, col))
+            cols[col] = 0
+            hill_diagonals[row - col] = 0
+            dale_diagonals[row + col] = 0
+
+        def add_solution():
+            solution = []
+            for _, col in sorted(queens):
+                solution.append('.' * col + 'Q' + '.' * (n - col - 1))
+            output.append(solution)
+
+        def backtrack(row=0):
+            for col in range(n):
+                if could_place(row, col):
+                    place_queen(row, col)
+                    if row + 1 == n:
+                        add_solution()
+                    else:
+                        backtrack(row + 1)
+                    remove_queen(row, col)
+
+        cols = [0] * n
+        hill_diagonals = [0] * (2 * n - 1)
+        dale_diagonals = [0] * (2 * n - 1)
+        queens = set()
+        output = []
+        backtrack()
+        return output
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后(非最优解)
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+        res = []
+        s = "." * n
+
+        def backtrack(i, tmp, col, z_diagonal, f_diagonal):
+            if i == n:
+                res.append(tmp)
+                return
+            for j in range(n):
+                if j not in col and i + j not in z_diagonal and i - j not in f_diagonal:
+                    backtrack(i + 1, tmp + [s[:j] + "Q" + s[j + 1:]], col | {j}, z_diagonal | {i + j},
+                              f_diagonal | {i - j})
+
+        backtrack(0, [], set(), set(), set())
+        return res
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+        board = ['.'] * (n ** 2)
+        # can use  `board = [['.'] * n for _ in range(n)]` as well, but need to use `copy.deepcopy` later to copy the list of lists
+
+        res = []
+
+        # flags to indicate whether the a column, a major diagonal or a minor diagonal has been occupied by a Q or not
+        col_flag = [1] * n
+        major_diag_flag = [1] * (2 * n - 1)
+        minor_diag_flag = [1] * (2 * n - 1)
+
+        self.solve_queue(board, 0, res, n, col_flag, major_diag_flag, minor_diag_flag)
+
+        result = []
+        for r in res:
+            b = []
+            for i in range(n):
+                b.append(''.join(r[(i * n):((i + 1) * n)]))
+
+            result.append(b)
+
+        return result
+
+    def solve_queue(self, board, row, res, n, col_flag, major_diag_flag, minor_diag_flag):
+
+        if row == n:
+            new_board = list(board)
+            res.append(new_board)
+        else:
+            for col in range(n):
+                # for the square [row, col], it is in major diagonal `n + col - row - 1` and minor diagonal `row + col`
+                # this depends on how you count the major and minor diagonals.
+                if col_flag[col] and major_diag_flag[n + col - row - 1] and minor_diag_flag[row + col]:
+                    board[row * n + col] = 'Q'
+                    col_flag[col] = 0
+                    major_diag_flag[n + col - row - 1] = 0
+                    minor_diag_flag[row + col] = 0
+
+                    self.solve_queue(board, row + 1, res, n, col_flag, major_diag_flag, minor_diag_flag)
+
+                    board[row * n + col] = '.'
+                    col_flag[col] = 1
+                    major_diag_flag[n + col - row - 1] = 1
+                    minor_diag_flag[row + col] = 1
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后，AC算法
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+        ans = []
+        queens = [-1] * n
+        columns = [True] * n + [False]  # || col with dummy for boundary
+        back = [True] * n * 2  # \\ col - row
+        forward = [True] * n * 2  # // col + row
+        row = col = 0
+        while True:
+            if columns[col] and back[col - row + n] and forward[col + row]:
+                queens[row] = col
+                columns[col] = back[col - row + n] = forward[col + row] = False
+                row += 1
+                col = 0
+                if row == n:
+                    ans.append(['.' * q + 'Q' + '.' * (n - q - 1) for q in queens])
+            else:
+                if row == n or col == n:
+                    if row == 0:
+                        return ans
+                    row -= 1
+                    col = queens[row]
+                    columns[col] = back[col - row + n] = forward[col + row] = True
+                col += 1
+
+
+class Solution:
+    def solveNQueens(self, n: int) -> List[List[str]]:
+        """
+            N皇后
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+            每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+            输入: 4
+            输出: [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+            解释: 4 皇后问题存在两个不同的解法。
+        """
+
+        def DFS(queens, xy_dif, xy_sum):
+            p = len(queens)
+            if p == n:
+                result.append(queens)
+                return None
+            for q in range(n):
+                if q not in queens and p - q not in xy_dif and p + q not in xy_sum:
+                    DFS(queens + [q], xy_dif + [p - q], xy_sum + [p + q])
+
+        result = []
+        DFS([], [], [])
+        return [["." * i + "Q" + "." * (n - i - 1) for i in sol] for sol in result]
+
+
+
 
 
 import time
