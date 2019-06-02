@@ -2852,6 +2852,159 @@ class Solution:
         return [["." * i + "Q" + "." * (n - i - 1) for i in sol] for sol in result]
 
 
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        """
+            二进制求和(非最优解)
+
+            给定两个二进制字符串，返回他们的和（用二进制表示）。
+            输入为非空字符串且只包含数字 1 和 0。
+
+            输入: a = "11", b = "1"
+            输出: "100"
+        """
+        return str(bin(int(a, 2) + int(b, 2)))[2:]
+
+
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        """
+            二进制求和
+
+            给定两个二进制字符串，返回他们的和（用二进制表示）。
+            输入为非空字符串且只包含数字 1 和 0。
+
+            输入: a = "11", b = "1"
+            输出: "100"
+        """
+        if len(a) < len(b):
+            a, b = b, a
+        b, k, m, total = "0" * (len(a) - len(b)) + b, len(a) - 1, 0, ["0", ] * len(a)
+
+        while k >= 0:
+            m, n = divmod(ord(a[k]) - ord("0") + ord(b[k]) - ord("0") + m, 2)
+            total[k] = str(n)
+            k -= 1
+        if m:
+            total.insert(0, str(m))
+        return "".join(total)
+
+
+class Solution:
+    def addBinary(self, a: str, b: str) -> str:
+        """
+            二进制求和(非最优解)
+
+            给定两个二进制字符串，返回他们的和（用二进制表示）。
+            输入为非空字符串且只包含数字 1 和 0。
+
+            输入: a = "11", b = "1"
+            输出: "100"
+        """
+        return format(int(a, 2) + int(b, 2),'b')
+
+
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        """
+            删除排序链表中的重复元素 II(非最优解)
+
+            给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中 没有重复出现 的数字。
+            输入: 1->2->3->3->4->4->5
+            输出: 1->2->5
+        """
+        if not head:
+            return None
+        # 先找到head
+        i = head
+        while i.next:
+            j = i.next
+            if j.val != i.val:
+                break
+            while j.next and i.val == j.val:
+                j = j.next
+            if i.val == j.val:
+                return None
+            i = j
+        head = i
+        # 再找next
+        if i.next:
+            k, i, t = i, j, False
+            while i.next:
+                j = i.next
+                total = 0
+                while j.next and i.val == j.val:
+                    total += 1
+                    j = j.next
+                if not total and i.val != j.val:
+                    k.next = i
+                    k = i
+                elif i.val == j.val:
+                    t = True
+
+                i = j
+
+            k.next = i if not t else None
+
+        return head
+
+
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        """
+            删除排序链表中的重复元素 II(非最优解)
+
+            给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中 没有重复出现 的数字。
+            输入: 1->2->3->3->4->4->5
+            输出: 1->2->5
+        """
+        dummy = ListNode(0)
+        pt = dummy
+        repeated = 0
+        while head and head.next:
+            if head.val != head.next.val:
+                if not repeated:
+                    pt.next = head
+                    pt = pt.next
+                repeated = 0
+            else:
+                repeated = 1
+            head = head.next
+
+        pt.next = None if repeated else head
+
+        return dummy.next
+
+
+class Solution:
+    def deleteDuplicates(self, head: ListNode) -> ListNode:
+        """
+            删除排序链表中的重复元素 II
+
+            给定一个排序链表，删除所有含有重复数字的节点，只保留原始链表中 没有重复出现 的数字。
+            输入: 1->2->3->3->4->4->5
+            输出: 1->2->5
+        """
+        cur, newhead = head, None
+        temp = newhead
+        while cur:
+            curnext = cur.next
+
+            while curnext and curnext.val == cur.val:
+                curnext = curnext.next
+            if not newhead or newhead == cur:
+                newhead = cur if cur.next == curnext else curnext
+                temp = newhead
+            else:
+                temp.next = cur if cur.next == curnext and cur != temp else curnext
+
+                if temp.next and temp.next.next and temp.next.val != temp.next.next.val:
+                    temp = temp.next
+
+            cur = curnext
+        return newhead
+
+
 
 
 
