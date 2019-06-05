@@ -1625,21 +1625,19 @@ def isValidBST(root):
     """
         验证二叉搜索树
 
-        采用DFS中根遍历排序比较
+        递归
     """
-    stack, inorder = [], float('-inf')
 
-    while stack or root:
-        while root:
-            stack.append(root)
-            root = root.left
-        root = stack.pop()
-        if root.val <= inorder:
+    def helper(node, lower, upper):
+        if not node:
+            return True
+
+        if node.val > lower and node.val < upper:
+            return helper(node.left, lower, node.val) and helper(node.right, node.val, upper)
+        else:
             return False
-        inorder = root.val
-        root = root.right
 
-    return True
+    return helper(root, float('-inf'), float('inf'))
 
 
 def simplifyPath(path):
@@ -2901,7 +2899,7 @@ class Solution:
             输入: a = "11", b = "1"
             输出: "100"
         """
-        return format(int(a, 2) + int(b, 2),'b')
+        return format(int(a, 2) + int(b, 2), 'b')
 
 
 class Solution:
@@ -3005,7 +3003,535 @@ class Solution:
         return newhead
 
 
+class Solution:
+    def __init__(self):
+        self.result_all = None
 
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集II(非最优解)
+
+            给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: [1,2,2]
+            输出:
+            [
+              [2],
+              [1],
+              [1,2,2],
+              [2,2],
+              [1,2],
+              []
+            ]
+        """
+        self.result_all = [[]]
+        nums = sorted(nums)
+        self.dfs(nums, 0, 0, [])
+        return self.result_all
+
+    def dfs(self, nums, n, start, result):
+        if n == len(nums):
+            return
+
+        pre_num = None
+        for i in range(start, len(nums)):
+            if pre_num == nums[i]:
+                continue
+            pre_num = nums[i]
+            result.append(nums[i])
+            self.result_all.append(result[:])
+            self.dfs(nums, n + 1, i + 1, result)
+            result.pop()
+
+        return
+
+
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集II(非最优解)
+
+            给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: [1,2,2]
+            输出:
+            [
+              [2],
+              [1],
+              [1,2,2],
+              [2,2],
+              [1,2],
+              []
+            ]
+        """
+        m = {}
+        for i in nums:
+            if i in m:
+                m[i] += 1
+            else:
+                m[i] = 1
+
+        res = [[]]
+        for k, v in m.items():
+            nextSet = [[k] * i for i in range(v + 1)]
+            res = [pre + pos for pre in res for pos in nextSet]
+        return res
+
+
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集II
+
+            给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: [1,2,2]
+            输出:
+            [
+              [2],
+              [1],
+              [1,2,2],
+              [2,2],
+              [1,2],
+              []
+            ]
+        """
+        if len(nums) == 0:
+            return [[]]
+        nums.sort()
+        res = []
+        length = len(nums)
+        self.lastadd = 0
+
+        # 原来76模式
+        def recursion(num: int, cur_len: int):
+            if cur_len == 1:
+                res.append([])
+                res.append([num])
+                self.lastadd = 1
+            else:
+                sub = res[:]
+                for item in sub:
+                    res.append(item + [num])
+                self.lastadd = len(res) - len(sub)
+
+        # 重复元素部分
+        def recursion2(num: int, cur_len: int):
+            sub = res[len(res) - self.lastadd:]
+            for item in sub:
+                res.append(item + [num])
+
+        # 依据是否重复 来通过不同函数
+        for index, num in enumerate(nums):
+            if index > 0 and num == nums[index - 1]:
+                recursion2(num, index + 1)
+            # 不同的数进行的是 原来的操作
+            else:
+                recursion(num, index + 1)
+
+        return res
+
+
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -> List[List[int]]:
+        """
+            子集II(非最优解)
+
+            给定一个可能包含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）。
+            说明：解集不能包含重复的子集。
+
+            输入: [1,2,2]
+            输出:
+            [
+              [2],
+              [1],
+              [1,2,2],
+              [2,2],
+              [1,2],
+              []
+            ]
+        """
+        from functools import reduce
+        return reduce(lambda x, i: [a + [i[0]] * j for j in range(i[1] + 1) for a in x],
+                      collections.Counter(nums).items(), [[]])
+
+
+class Solution:
+    total = 0
+
+    def numDecodings(self, s: str) -> int:
+        """
+            解码方法(算法理解）
+
+            一条包含字母 A-Z 的消息通过以下方式进行了编码：
+            'A' -> 1
+            'B' -> 2
+            ...
+            'Z' -> 26
+            给定一个只包含数字的非空字符串，请计算解码方法的总数。
+            输入: "226"
+            输出: 3
+            解释: 它可以解码为 "BZ" (2 26), "VF" (22 6), 或者 "BBF" (2 2 6) 。
+        """
+        dict1 = {str(i): chr(ord("A") + i - 1) for i in range(1, 27)}
+        res = []
+        if not s:
+            return 0
+        self.dfs(s, res, [], dict1)
+        return self.total
+
+    def dfs(self, s, res, buff, dict1):
+        if not s:
+            return
+        if s in dict1.keys():
+            buff.append(s)
+            res.append(list(buff))
+            buff.pop()
+            self.total += 1
+        for i in range(1, min(len("26") + 1, len(s))):
+            if int(s[:i]) > 26:
+                return
+            elif s[:i] in dict1.keys() and s[:i] in s:
+                buff.append(s[:i])
+                self.dfs(s[i:], res, buff, dict1)
+                buff.pop()
+            else:
+                return
+
+
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        """
+            解码方法(非最优解）
+
+            一条包含字母 A-Z 的消息通过以下方式进行了编码：
+            'A' -> 1
+            'B' -> 2
+            ...
+            'Z' -> 26
+            给定一个只包含数字的非空字符串，请计算解码方法的总数。
+            输入: "226"
+            输出: 3
+            解释: 它可以解码为 "BZ" (2 26), "VF" (22 6), 或者 "BBF" (2 2 6) 。
+        """
+        if not s:
+            return 0
+        dp = [0] * (len(s) + 1)  # dp[i]表示以s[0...i)的最多解码方式
+        dp[0] = 1
+        for i in range(1, len(s) + 1):
+            if int(s[i - 1]) != 0:
+                if i == 1:
+                    dp[i] = 1
+                else:
+                    if int(s[i - 2]) and int(s[i - 2:i]) <= 26:
+                        dp[i] = dp[i - 2] + dp[i - 1]
+                    else:
+                        dp[i] = dp[i - 1]
+            else:
+                if i > 1 and 0 < int(s[i - 2:i]) <= 26:
+                    dp[i] = dp[i - 2]
+                else:
+                    return 0
+
+        return dp[len(s)]
+
+
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        """
+            解码方法(非最优解)
+
+            一条包含字母 A-Z 的消息通过以下方式进行了编码：
+            'A' -> 1
+            'B' -> 2
+            ...
+            'Z' -> 26
+            给定一个只包含数字的非空字符串，请计算解码方法的总数。
+            输入: "226"
+            输出: 3
+            解释: 它可以解码为 "BZ" (2 26), "VF" (22 6), 或者 "BBF" (2 2 6) 。
+        """
+        res = [1] + [0] * len(s)
+        if not s:
+            return 0
+        for i in range(0, len(s)):
+            if i == 0:
+                if s[i] == "0":
+                    return 0
+                else:
+                    res[i + 1] += res[i]
+            elif s[i - 1] != "0" and s[i] != "0":
+                if 0 < int(s[i - 1:i + 1]) < 27:
+                    res[i + 1] += res[i] + res[i - 1]
+                else:
+                    res[i + 1] += res[i]
+            elif s[i - 1] == "0" and s[i] == "0":
+                return 0
+            elif s[i - 1] == "0":
+                res[i + 1] += res[i]
+            elif s[i] == "0" and 0 < int(s[i - 1:i + 1]) < 27:
+                res[i + 1] += res[i - 1]
+
+        return res[-1]
+
+
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        """
+            解码方法
+
+            一条包含字母 A-Z 的消息通过以下方式进行了编码：
+            'A' -> 1
+            'B' -> 2
+            ...
+            'Z' -> 26
+            给定一个只包含数字的非空字符串，请计算解码方法的总数。
+            输入: "226"
+            输出: 3
+            解释: 它可以解码为 "BZ" (2 26), "VF" (22 6), 或者 "BBF" (2 2 6) 。
+        """
+        count, store = 0, {}
+
+        def helper(s):
+            nonlocal count
+            if not s:
+                count += 1
+            elif s[0] == "0":
+                pass
+            elif s in store:
+                count += store[s]
+            else:
+                helper(s[1:])
+                if len(s) >= 2 and int(s[:2]) < 27: helper(s[2:])
+                store[s] = count
+
+        helper(s)
+        return count
+
+
+class Solution:
+    def numTrees(self, n: int) -> int:
+        """
+            不同的二叉搜索树(非最优解, 卡特兰公式)
+
+            给定一个整数 n，求以 1 ... n 为节点组成的二叉搜索树有多少种？
+            输入: 3
+            输出: 5
+            解释:
+            给定 n = 3, 一共有 5 种不同结构的二叉搜索树:
+
+               1         3     3      2      1
+                \       /     /      / \      \
+                 3     2     1      1   3      2
+                /     /       \                 \
+               2     1         2                 3
+
+            构造二叉搜索树:
+            1. nums里取一个元素作为根
+            2. 遍历其他元素, 插入树, 根据不同的插入位置递归
+
+        """
+        dp = [0 for _ in range(n + 1)]
+        dp[0] = 1
+        dp[1] = 1
+        for i in range(2, n + 1):
+            for j in range(i):
+                dp[i] += dp[j] * dp[i - j - 1]
+
+        return dp[-1]
+
+
+class Solution:
+    def numTrees(self, n: int) -> int:
+        """
+            不同的二叉搜索树(非最优解, 卡特兰公式)
+
+            给定一个整数 n，求以 1 ... n 为节点组成的二叉搜索树有多少种？
+            输入: 3
+            输出: 5
+            解释:
+            给定 n = 3, 一共有 5 种不同结构的二叉搜索树:
+
+               1         3     3      2      1
+                \       /     /      / \      \
+                 3     2     1      1   3      2
+                /     /       \                 \
+               2     1         2                 3
+
+            构造二叉搜索树:
+            1. nums里取一个元素作为根
+            2. 遍历其他元素, 插入树, 根据不同的插入位置递归
+
+        """
+
+        def factorial(n):
+            return 1 if n == 0 else n * factorial(n - 1)
+
+        return factorial(2 * n) // (factorial(n + 1) * factorial(n))
+
+
+class Solution:
+    def numTrees(self, n: int) -> int:
+        """
+            不同的二叉搜索树(递归缓存)
+
+            给定一个整数 n，求以 1 ... n 为节点组成的二叉搜索树有多少种？
+            输入: 3
+            输出: 5
+            解释:
+            给定 n = 3, 一共有 5 种不同结构的二叉搜索树:
+
+               1         3     3      2      1
+                \       /     /      / \      \
+                 3     2     1      1   3      2
+                /     /       \                 \
+               2     1         2                 3
+
+            构造二叉搜索树:
+            1. nums里取一个元素作为根
+            2. 遍历其他元素, 插入树, 根据不同的插入位置递归
+
+        """
+        cache = [-1 for _ in range(n + 1)]
+        return self.countTrees(n, cache)
+
+    def countTrees(self, n, cache):
+        if n == 0:
+            return 1
+        if n == 1:
+            return 1
+
+        if cache[n] != -1:  # -1 means we don't know countTrees(n) yet.
+            return cache[n]
+
+        Result = 0
+        for i in range(n):
+            LeftTrees = self.countTrees(i, cache)
+            RightTrees = self.countTrees(n - i - 1, cache)
+            Result += LeftTrees * RightTrees
+        cache[n] = Result
+        return Result
+
+
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        """
+            N皇后II(非最优解)
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            输入: 4
+            输出: 2
+            解释: 4 皇后问题存在如下两个不同的解法。
+            [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+        """
+        board = ['.'] * (n ** 2)
+
+        res = []
+
+        col_flag = [1] * n
+        major_diag_flag = [1] * (2 * n - 1)
+        minor_diag_flag = [1] * (2 * n - 1)
+
+        self.solve_queen(board, 0, res, n, col_flag, major_diag_flag, minor_diag_flag)
+
+        return len(res)
+
+    def solve_queen(self, board, row, res, n, col_flag, major_diag_flag, minor_diag_flag):
+
+        if row == n:
+            new_board = list(board)
+            res.append(new_board)
+        else:
+            for col in range(n):
+                # 对于从左到右的对角线row-col为常数，从右到左的对角线row+col为常数
+                if col_flag[col] and major_diag_flag[row - col] and minor_diag_flag[row + col]:
+                    board[row * n + col] = 'Q'
+                    col_flag[col] = 0
+                    major_diag_flag[row - col] = 0
+                    minor_diag_flag[row + col] = 0
+
+                    self.solve_queen(board, row + 1, res, n, col_flag, major_diag_flag, minor_diag_flag)
+
+                    board[row * n + col] = '.'
+                    col_flag[col] = 1
+                    major_diag_flag[row - col] = 1
+                    minor_diag_flag[row + col] = 1
+
+
+class Solution:
+    def totalNQueens(self, n: int) -> int:
+        """
+            N皇后II(使用 bitmap 回溯)
+
+            n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+            输入: 4
+            输出: 2
+            解释: 4 皇后问题存在如下两个不同的解法。
+            [
+             [".Q..",  // 解法 1
+              "...Q",
+              "Q...",
+              "..Q."],
+
+             ["..Q.",  // 解法 2
+              "Q...",
+              "...Q",
+              ".Q.."]
+            ]
+        """
+
+        def backtrack(row=0, hills=0, next_row=0, dales=0, count=0):
+            """
+            :type row: 当前放置皇后的行号
+            :type hills: 主对角线占据情况 [1 = 被占据，0 = 未被占据]
+            :type next_row: 下一行被占据的情况 [1 = 被占据，0 = 未被占据]
+            :type dales: 次对角线占据情况 [1 = 被占据，0 = 未被占据]
+            :rtype: 所有可行解的个数
+            """
+            if row == n:  # 如果已经放置了 n 个皇后
+                count += 1  # 累加可行解
+            else:
+                # 当前行可用的列
+                # ! 表示 0 和 1 的含义对于变量 hills, next_row and dales的含义是相反的
+                # [1 = 未被占据，0 = 被占据]
+                free_columns = columns & ~(hills | next_row | dales)
+
+                # 找到可以放置下一个皇后的列
+                while free_columns:
+                    # free_columns 的第一个为 '1' 的位
+                    # 在该列我们放置当前皇后
+                    curr_column = - free_columns & free_columns
+
+                    # 放置皇后
+                    # 并且排除对应的列
+                    free_columns ^= curr_column
+
+                    count = backtrack(row + 1,
+                                      (hills | curr_column) << 1,  # 解决对角线占位偏移，下一行一个上移，一个下移
+                                      next_row | curr_column,
+                                      (dales | curr_column) >> 1,
+                                      count)
+            return count
+
+        # 棋盘所有的列都可放置，
+        # 即，按位表示为 n 个 '1'
+        # bin(cols) = 0b1111 (n = 4), bin(cols) = 0b111 (n = 3)
+        # [1 = 可放置]
+        columns = (1 << n) - 1
+        return backtrack()
 
 
 import time
