@@ -1623,7 +1623,7 @@ def minPathSum(grid):
 
 def isValidBST(root):
     """
-        验证二叉搜索树
+        验证二叉搜索树(非最优解)
 
         递归
     """
@@ -1632,12 +1632,127 @@ def isValidBST(root):
         if not node:
             return True
 
-        if node.val > lower and node.val < upper:
+        if lower < node.val < upper:
             return helper(node.left, lower, node.val) and helper(node.right, node.val, upper)
         else:
             return False
 
     return helper(root, float('-inf'), float('inf'))
+
+
+def isValidBST(root):
+    """
+        验证二叉搜索树(非最优解)
+
+        中序遍历
+    """
+    ans, stack, node = [], [], root
+
+    while node is not None or stack:
+        while node is not None:
+            stack.append(node)
+            node = node.left
+
+        if stack:
+            node = stack.pop()
+            ans.append(node.val)
+            node = node.right
+
+    if len(ans) < 2:
+        return True
+    for i in range(len(ans) - 1):
+        if ans[i] >= ans[i + 1]:
+            return False
+
+    return True
+
+
+def isValidBST(root):
+    """
+        验证二叉搜索树
+
+        mirrors算法
+    """
+    a = c = 0
+    while root is not None:
+        if root.left is None:
+            if c != 0 and a >= root.val:
+                return False
+            c = 1
+            a = root.val
+            root = root.right
+        else:
+            t = root.left
+            while t.right and t.right != root:
+                t = t.right
+            if t.right is None:
+                t.right = root
+                root = root.left
+            else:
+                t.right = None
+                if c != 0 and a >= root.val:
+                    return False
+                c = 1
+                a = root.val
+                root = root.right
+    return True
+
+
+def isValidBST(root):
+    """
+        验证二叉搜索树
+
+        中序遍历
+    """
+    last = float("-inf")
+
+    if root is None:
+        return True
+    if isValidBST(root.left):
+        if last < root.val:
+            last = root.val
+            return isValidBST(root.right)
+    return False
+
+
+class Solution:
+    def isValidBST(self, root):
+        """
+            验证二叉搜索树
+
+            中序遍历
+        """
+        self.prev = None
+        return self.helper(root)
+
+    def helper(self, root):
+        if root is None:
+            return True
+        if not self.helper(root.left):
+            return False
+        if self.prev and self.prev.val >= root.val:
+            return False
+        self.prev = root
+        return self.helper(root.right)
+
+
+def isValidBST(root):
+    """
+        验证二叉搜索树
+
+        中序遍历
+    """
+    result = []
+
+    def inorder(root, result):
+        if root:
+            inorder(root.left, result)
+            result.append(root.val)
+            inorder(root.right, result)
+
+    inorder(root, result)
+
+    return sorted(set(result)) == result
 
 
 def simplifyPath(path):
@@ -3393,7 +3508,6 @@ class Solution:
             构造二叉搜索树:
             1. nums里取一个元素作为根
             2. 遍历其他元素, 插入树, 根据不同的插入位置递归
-
         """
         cache = [-1 for _ in range(n + 1)]
         return self.countTrees(n, cache)
@@ -3533,6 +3647,253 @@ class Solution:
         columns = (1 << n) - 1
         return backtrack()
 
+
+def preTraverse(root):
+    """
+    前序遍历
+    """
+    if root is None:
+        return
+    print(root.value)
+    preTraverse(root.left)
+    preTraverse(root.right)
+
+
+def midTraverse(root):
+    """
+    中序遍历
+    """
+    if root is None:
+        return
+    midTraverse(root.left)
+    print(root.value)
+    midTraverse(root.right)
+
+
+def afterTraverse(root):
+    """
+    后序遍历
+    """
+    if root is None:
+        return
+    afterTraverse(root.left)
+    afterTraverse(root.right)
+    print(root.value)
+
+
+class Solution:
+    def mySqrt(self, x: int) -> int:
+        """
+            x 的平方根
+
+            实现 int sqrt(int x) 函数。
+            计算并返回 x 的平方根，其中 x 是非负整数。
+            由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。
+
+            输入: 8
+            输出: 2
+            说明: 8 的平方根是 2.82842...,
+                 由于返回类型是整数，小数部分将被舍去。
+        """
+        s = x
+        if not x: return 0
+        return int(self.sqrts(x, s))
+
+    def sqrts(self, x, s):
+        res = (x + s / x) / 2
+        if res == x:
+            return x
+        else:
+            return self.sqrts(res, s)
+
+
+class Solution:
+    def mySqrt(self, x: int) -> int:
+        """
+            x 的平方根(非最优解，牛顿迭代法）
+
+            实现 int sqrt(int x) 函数。
+            计算并返回 x 的平方根，其中 x 是非负整数。
+            由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。
+
+            输入: 8
+            输出: 2
+            说明: 8 的平方根是 2.82842...,
+                 由于返回类型是整数，小数部分将被舍去。
+        """
+        r = x
+        while r * r > x:
+            r = (r + x // r) // 2
+        return r
+
+
+class Solution:
+    def mySqrt(self, x: int) -> int:
+        """
+            x 的平方根(非最优解, 二分搜索，结果整数)
+
+            实现 int sqrt(int x) 函数。
+            计算并返回 x 的平方根，其中 x 是非负整数。
+            由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。
+
+            输入: 8
+            输出: 2
+            说明: 8 的平方根是 2.82842...,
+                 由于返回类型是整数，小数部分将被舍去。
+        """
+        left = 0
+        right = math.ceil(x / 2)
+        res = 0
+        while left <= right:
+            mid = left + (right - left) // 2
+            tmp = mid * mid
+            if tmp == x:
+                return mid
+            elif tmp < x:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return right
+
+
+class Solution:
+    def mySqrt(self, x: float, precision: int) -> int:
+        """
+            x 的平方根(二分搜索，结果浮点数)
+
+            实现 int sqrt(int x) 函数。
+            计算并返回 x 的平方根，其中 x 是非负整数。
+            由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。
+
+            输入: 8
+            输出: 2
+            说明: 8 的平方根是 2.82842...,
+                 由于返回类型是整数，小数部分将被舍去。
+        """
+        i, j = 0, x / 2 + 1
+        limit = 1 / 10 ** precision
+        while i <= j:
+            mid = (i + j) / 2
+            if mid ** 2 == x:
+                return round(mid, precision)
+            elif mid ** 2 < x:
+                i = mid + limit
+            else:
+                j = mid - limit
+        return round(j, precision)
+
+
+class Solution:
+    def mySqrt(self, x: float, precision: int) -> int:
+        """
+            x 的平方根(二分搜索，结果浮点数)
+
+            实现 int sqrt(int x) 函数。
+            计算并返回 x 的平方根，其中 x 是非负整数。
+            由于返回类型是整数，结果只保留整数的部分，小数部分将被舍去。
+
+            输入: 8
+            输出: 2
+            说明: 8 的平方根是 2.82842...,
+                 由于返回类型是整数，小数部分将被舍去。
+        """
+        return int(x ** 0.5)
+
+
+class BinaryTreeNode:
+    def __init__(self, data):
+        self.data = data
+        self.left_child = None
+        self.right_child = None
+
+
+def constructBinaryTree(inorder_traversal, left_index, right_index):
+    """
+        不同的二叉搜索树(构造出全部)
+
+        给定一个整数 n，求以 1 ... n 为节点组成的二叉搜索树有多少种？
+        输入: 3
+        输出: 5
+        解释:
+        给定 n = 3, 一共有 5 种不同结构的二叉搜索树:
+
+           1         3     3      2      1
+            \       /     /      / \      \
+             3     2     1      1   3      2
+            /     /       \                 \
+           2     1         2                 3
+
+        构造二叉搜索树:
+        1. nums里取一个元素作为根
+        2. 遍历其他元素, 插入树, 根据不同的插入位置递归
+    """
+    if left_index > right_index:  # 二叉树为空树，直接返回空根节点
+        return [BinaryTreeNode(None)]
+
+    if left_index == right_index:  # 二叉树仅含一个节点必然为二叉搜索树
+        root = BinaryTreeNode(inorder_traversal[left_index])
+        return [root]
+
+    root_node_list = []  # 当前中序序列对应的所有二叉树的根节点表
+    for i in range(left_index, right_index + 1):
+        left_sub = constructBinaryTree(inorder_traversal, left_index, i - 1)  # 构造所有左子树
+        right_sub = constructBinaryTree(inorder_traversal, i + 1, right_index)  # 构造所有右子树
+        for j in range(len(left_sub)):
+            for k in range(len(right_sub)):  # 由构造出的左右子树合成当前中序序列对应的所有二叉树
+                root = BinaryTreeNode(inorder_traversal[i])
+                root.left_child = left_sub[j]
+                root.right_child = right_sub[k]
+                root_node_list.append(root)
+
+    return root_node_list
+
+
+def isBST(root):  # 判断二叉树是否为二叉搜索树
+    def helper(node, lower, upper):
+        if not node or not node.data:
+            return True
+
+        if lower < node.data < upper:
+            return helper(node.left_child, lower, node.data) and helper(node.right_child, node.data, upper)
+        else:
+            return False
+
+    return helper(root, float('-inf'), float('inf'))
+
+
+def midTraverse(root):
+    """
+    中序遍历
+    """
+    if root is None:
+        return
+    midTraverse(root.left_child)
+    print(root.data,
+          root.left_child.data if root.left_child else None,
+          root.right_child.data if root.left_child else None)
+    midTraverse(root.right_child)
+
+
+def main():
+    n = 4
+    inorder_traversal = [x for x in range(1, n + 1)]
+    root_list = constructBinaryTree(inorder_traversal, 0, len(inorder_traversal) - 1)
+
+    for i in range(len(root_list)):
+        result = isBST(root_list[i])
+        if result is False:
+            print("错误,构造出的二叉树中存在不为二叉搜索树的二叉树")
+            exit(-1)
+
+    tree_num = 1
+    for m in root_list:
+        midTraverse(m)
+        print("-" * 20 + f"{tree_num}")
+        tree_num += 1
+    print(f"对应的二叉树共有{len(root_list)}棵,它们均为二叉搜索树")
+
+
+main()
 
 import time
 
