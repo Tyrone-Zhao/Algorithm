@@ -3957,7 +3957,31 @@ def maxLongCharacters(string):
     return matrix[0][i], max_num
 
 
-main()
+def quickSort(A, p, r):
+    """
+        快速排序，原址排序（原地修改）
+        首次排序结果为：[p, i] <= base, [i+1, j-1] > base, [j, r - 1] 无限制，r为base。
+        最好时间复杂度当q=n/2或（n-1）/2时为：nlgn, 最坏渐进下界为Omega n方
+    :param A: 数组
+    :param p: 0
+    :param r: 数组长度减一
+    :return: None
+    """
+    def partition(A, p, r):
+        base = A[r]
+        i = p - 1
+        for j in range(p, r):
+            if A[j] <= base:
+                i += 1
+                A[i], A[j] = A[j], A[i]
+        A[i + 1], A[r] = A[r], A[i + 1]
+        return i + 1
+
+    if p < r:
+        q = partition(A, p, r)
+        quickSort(A, p, q - 1)
+        quickSort(A, q + 1, r)
+
 
 import time
 
