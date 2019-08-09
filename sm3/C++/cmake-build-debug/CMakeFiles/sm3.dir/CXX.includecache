@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/zhaojunyu/Library/Mobile Documents/com~apple~CloudDocs/study/C++/sm3/sm3.cpp
+stdio.h
+-
+memory.h
+-
+sm3.h
+/Users/zhaojunyu/Library/Mobile Documents/com~apple~CloudDocs/study/C++/sm3/sm3.h
+
+/Users/zhaojunyu/Library/Mobile Documents/com~apple~CloudDocs/study/C++/sm3/sm3.h
+

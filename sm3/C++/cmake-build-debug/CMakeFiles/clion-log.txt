@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/local/Cellar/gcc/9.1.0/bin/gcc-9 -DCMAKE_CXX_COMPILER=/usr/local/Cellar/gcc/9.1.0/bin/g++-9 -G "CodeBlocks - Unix Makefiles" "/Users/zhaojunyu/Library/Mobile Documents/com~apple~CloudDocs/study/C++/sm3"
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/zhaojunyu/Library/Mobile Documents/com~apple~CloudDocs/study/C++/sm3/cmake-build-debug
