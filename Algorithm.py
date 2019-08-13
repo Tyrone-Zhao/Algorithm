@@ -1,3 +1,16 @@
+def BubbleSort(values):
+    """ 冒泡排序 """
+    for i in range(len(values)):
+        flag = True
+        for j in range(len(values) - i - 1):
+            if values[j] > values[j + 1]:
+                values[j], values[j + 1] = values[j + 1], values[j]
+                flag = False
+
+        if flag is True:
+            break
+
+
 def maxLongCharacters(string):
     """
         找出字符中最长连续的单个字符
